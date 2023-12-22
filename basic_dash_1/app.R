@@ -1,6 +1,7 @@
 library(shiny)
 library(ggplot2)
 library(DT)
+library(dplyr)
 source("utils.R")
 
 # Pull in the last 48 hours of Seattle data
@@ -10,14 +11,14 @@ df <- getData()
 ui <- fluidPage(
   
   # App title ----
-  titlePanel( h1("Last 48 Hours of Seattle Weather", align = "center") ),
+  titlePanel( h1("Seattle Weather", align = "left") ),
   
   # Sidebar layout with a input and output definitions ----
   sidebarLayout(
     sidebarPanel(
       # Create a selector aka `input$variable`...
       selectInput(inputId = "variable",
-                  label = h4("Choose Variable"),
+                  label = h4("Choose Variable to Plot"),
                   choices = c("Temperature", "Precip"),
                   selected = "Temperature")
     ),
@@ -43,7 +44,7 @@ server <- function(input, output) {
   })
   
   dataPlot <- reactive({
-    getPlot(df, {{input$variable}})
+    getPlot( df, input$variable )
   })
 
   # Plot section 
@@ -57,7 +58,7 @@ server <- function(input, output) {
   
    # DT table section
   output$table_data <- renderTable({
-    mutate(datasetInput(), 
+    mutate(df, 
            Time = as.character(Time)
            )
   })
