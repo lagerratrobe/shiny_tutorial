@@ -43,7 +43,7 @@ server <- function(input, output) {
   })
   
   dataPlot <- reactive({
-    getPlot(df, input$variable)
+    getPlot(df, {{input$variable}})
   })
 
   # Plot section 
