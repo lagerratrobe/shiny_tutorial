@@ -1,51 +1,68 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
+library(ggplot2)
+library(DT)
+source("utils.R")
 
-# Define UI for application that draws a histogram
+# Pull in the last 48 hours of Seattle data
+df <- getData()
+
+# Define UI for dataset viewer app ----
 ui <- fluidPage(
-
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
+  
+  # App title ----
+  titlePanel( h1("Last 48 Hours of Seattle Weather", align = "center") ),
+  
+  # Sidebar layout with a input and output definitions ----
+  sidebarLayout(
+    sidebarPanel(
+      # Create a selector aka `input$variable`...
+      selectInput(inputId = "variable",
+                  label = h4("Choose Variable"),
+                  choices = c("Temperature", "Precip"),
+                  selected = "Temperature")
+    ),
+    
+    # Main panel for displaying outputs ----
+    mainPanel(
+      # Output: Verbatim text for data summary ----
+      plotOutput("variablePlot"),
+      # Output: HTML table with requested number of observations ----
+      tableOutput("table_data")
     )
+  )
 )
 
-# Define server logic required to draw a histogram
+# Define server logic to summarize and view selected dataset ----
 server <- function(input, output) {
+  
+  # Return the requested dataset ----
+  datasetInput <- reactive({
+    select(df, 
+           input$variable,
+           Time)
+  })
+  
+  dataPlot <- reactive({
+    getPlot(df, input$variable)
+  })
 
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
-    })
+  # Plot section 
+  # output$variablePlot <- renderPlot({
+  #   ggplot(df, mapping = aes(x = Time, y=.data[[input$variable]])) +
+  #   geom_line() 
+  # })
+  output$variablePlot <- renderPlot({
+    dataPlot()
+  })
+  
+   # DT table section
+  output$table_data <- renderTable({
+    mutate(datasetInput(), 
+           Time = as.character(Time)
+           )
+  })
+  
 }
 
-# Run the application 
-shinyApp(ui = ui, server = server)
+# Create Shiny app ----
+shinyApp(ui=ui, server=server)
