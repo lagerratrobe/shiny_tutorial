@@ -16,6 +16,9 @@ getData <- function() {
              exact = FALSE) ,
            "Temperature" = imperial.temp,
            "Precip" = imperial.precipTotal,
+           "SolarWatts" = solarRadiation,
+           "Humidity" = humidity,
+           "Pressure" = imperial.pressure,
            .keep = "none") |>
     arrange(desc(Time)) %>% 
     head(n=48)

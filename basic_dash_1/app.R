@@ -11,7 +11,8 @@ df <- getData()
 ui <- fluidPage(
   
   # App title ----
-  titlePanel( h1("Seattle Weather", align = "left") ),
+  titlePanel( h1("Seattle Weather", align = "left"),
+              windowTitle = "Seattle Weather Dash"),
   
   # Sidebar layout with a input and output definitions ----
   sidebarLayout(
