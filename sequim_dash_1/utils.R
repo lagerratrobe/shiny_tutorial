@@ -5,7 +5,7 @@ library(lubridate, warn.conflicts = FALSE)
 getData <- function() {
   df <- readRDS(
     url("https://github.com/lagerratrobe/weather_station/raw/main/Data/station_obs.RDS")) |> 
-    filter(stationID == "KWASEATT2743") |>
+    filter(stationID == "KWASEQUI431") |>
     mutate(stationID,
            "Time" = lubridate::parse_date_time(
              obsTimeLocal,
